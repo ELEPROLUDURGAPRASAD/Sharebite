@@ -1,0 +1,298 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user within the ShareBite application. This entity does not contain authentication data.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "userType": {
+          "type": "string",
+          "description": "Type of user (donor, ngo, acceptor)."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user.",
+          "format": "email"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Phone number of the user."
+        },
+        "location": {
+          "type": "string",
+          "description": "Location of the user."
+        }
+      },
+      "required": [
+        "id",
+        "userType",
+        "name",
+        "email",
+        "phone",
+        "location"
+      ]
+    },
+    "FoodDonation": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "FoodDonation",
+      "type": "object",
+      "description": "Represents a food donation made by a donor.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the FoodDonation entity."
+        },
+        "donorId": {
+          "type": "string",
+          "description": "Reference to the Donor (User). (Relationship: User 1:N FoodDonation)"
+        },
+        "foodType": {
+          "type": "string",
+          "description": "Type of food donation (restaurant, catering, etc.)."
+        },
+        "quantity": {
+          "type": "number",
+          "description": "Quantity of food being donated."
+        },
+        "expiry": {
+          "type": "string",
+          "description": "Expiry date of the food donation.",
+          "format": "date-time"
+        },
+        "photoUrl": {
+          "type": "string",
+          "description": "URL of the photo of the food donation.",
+          "format": "uri"
+        },
+        "location": {
+          "type": "string",
+          "description": "Location of the food donation."
+        },
+        "otherDetails": {
+          "type": "string",
+          "description": "Other details about the food donation."
+        },
+        "ngoId": {
+          "type": "string",
+          "description": "Reference to the NGO (User) that accepted the donation. (Relationship: User 1:N FoodDonation)"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the donation (e.g., pending, accepted, picked up, delivered)."
+        }
+      },
+      "required": [
+        "id",
+        "donorId",
+        "foodType",
+        "quantity",
+        "expiry",
+        "photoUrl",
+        "location"
+      ]
+    },
+    "PickupRequest": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "PickupRequest",
+      "type": "object",
+      "description": "Represents a pickup request from an NGO for a food donation.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the PickupRequest entity."
+        },
+        "ngoId": {
+          "type": "string",
+          "description": "Reference to the NGO (User) that made the pickup request. (Relationship: User 1:N PickupRequest)"
+        },
+        "foodDonationId": {
+          "type": "string",
+          "description": "Reference to the FoodDonation. (Relationship: FoodDonation 1:N PickupRequest)"
+        },
+        "distance": {
+          "type": "number",
+          "description": "Distance between the NGO and the food donation location."
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the pickup request (e.g., pending, accepted, picked up)."
+        }
+      },
+      "required": [
+        "id",
+        "ngoId",
+        "foodDonationId",
+        "distance",
+        "status"
+      ]
+    },
+    "DeliveryConfirmation": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "DeliveryConfirmation",
+      "type": "object",
+      "description": "Represents a confirmation of food delivery by the NGO.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the DeliveryConfirmation entity."
+        },
+        "ngoId": {
+          "type": "string",
+          "description": "Reference to the NGO (User) that confirmed the delivery. (Relationship: User 1:N DeliveryConfirmation)"
+        },
+        "foodDonationId": {
+          "type": "string",
+          "description": "Reference to the FoodDonation. (Relationship: FoodDonation 1:N DeliveryConfirmation)"
+        },
+        "photoUrl": {
+          "type": "string",
+          "description": "URL of the photo of the food redistribution.",
+          "format": "uri"
+        },
+        "confirmationDate": {
+          "type": "string",
+          "description": "Date and time of the delivery confirmation.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "ngoId",
+        "foodDonationId",
+        "photoUrl",
+        "confirmationDate"
+      ]
+    },
+    "MealRequest": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MealRequest",
+      "type": "object",
+      "description": "Represents a meal request from an acceptor.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the MealRequest entity."
+        },
+        "acceptorId": {
+          "type": "string",
+          "description": "Reference to the Acceptor (User) that made the meal request. (Relationship: User 1:N MealRequest)"
+        },
+        "meals": {
+          "type": "number",
+          "description": "Number of meals requested."
+        },
+        "requestDate": {
+          "type": "string",
+          "description": "Date and time of the meal request.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "acceptorId",
+        "meals",
+        "requestDate"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profiles. Uses path-based ownership for private user data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/foodDonations/{foodDonationId}",
+        "definition": {
+          "entityName": "FoodDonation",
+          "schema": {
+            "$ref": "#/backend/entities/FoodDonation"
+          },
+          "description": "Stores food donation information. Includes `donorId` and `ngoId` for authorization independence.",
+          "params": [
+            {
+              "name": "foodDonationId",
+              "description": "The unique identifier for the food donation."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/pickupRequests/{pickupRequestId}",
+        "definition": {
+          "entityName": "PickupRequest",
+          "schema": {
+            "$ref": "#/backend/entities/PickupRequest"
+          },
+          "description": "Stores pickup requests from NGOs for food donations. Includes `ngoId` and a reference to `foodDonationId`.",
+          "params": [
+            {
+              "name": "pickupRequestId",
+              "description": "The unique identifier for the pickup request."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/deliveryConfirmations/{deliveryConfirmationId}",
+        "definition": {
+          "entityName": "DeliveryConfirmation",
+          "schema": {
+            "$ref": "#/backend/entities/DeliveryConfirmation"
+          },
+          "description": "Stores delivery confirmations from NGOs for food donations. Includes `ngoId` and a reference to `foodDonationId`.",
+          "params": [
+            {
+              "name": "deliveryConfirmationId",
+              "description": "The unique identifier for the delivery confirmation."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/mealRequests/{mealRequestId}",
+        "definition": {
+          "entityName": "MealRequest",
+          "schema": {
+            "$ref": "#/backend/entities/MealRequest"
+          },
+          "description": "Stores meal requests from acceptors. Includes `acceptorId` for authorization.",
+          "params": [
+            {
+              "name": "mealRequestId",
+              "description": "The unique identifier for the meal request."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to support the ShareBite application, focusing on food donations and requests between donors, NGOs, and acceptors. The structure prioritizes authorization independence and scalable security rules using denormalization and structural segregation. The design implements path-based ownership where appropriate and membership maps for collaborative scenarios.\n\nUsers are stored in a top-level `/users` collection. Food donations are stored in `/foodDonations` which are associated with a donor and an NGO. Pickup requests related to food donations are stored in a `/pickupRequests` collection. Delivery confirmations are stored in the `/deliveryConfirmations` collection.  Meal requests are stored in the `/mealRequests` collection.\n\nTo achieve Authorization Independence (CRITICAL), the `foodDonations` documents, `pickupRequests` documents and the `deliveryConfirmations` documents should duplicate authorization-related data. Specifically, `foodDonations` contain both `donorId` and `ngoId`.  `pickupRequests` contain `ngoId` and a reference to `foodDonationId`. `deliveryConfirmations` contain `ngoId` and a reference to `foodDonationId`.\n\nQAPs (Rules are not Filters) is supported through structural segregation.  Each top-level collection (`users`, `foodDonations`, `pickupRequests`, `deliveryConfirmations`, `mealRequests`) has distinct security requirements, avoiding the need for complex filtering within rules. Path-based ownership (/users/{userId}/*) is used for user-owned data, while collaborative scenarios (e.g., NGO and Donor interaction) use top-level collections with appropriate authorization fields."
+  }
+}

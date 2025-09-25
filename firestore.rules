@@ -1,0 +1,163 @@
+/**
+ * @fileoverview Firestore Security Rules for ShareBite Application
+ *
+ * Core Philosophy:
+ * This ruleset enforces a multi-tenant data model where users (donors, NGOs, acceptors) have ownership over their data,
+ * and data related to food donations, pickup requests, delivery confirmations, and meal requests is secured based on user roles and relationships.
+ *
+ * Data Structure:
+ * - /users/{userId}: Stores user profiles, secured using path-based ownership.
+ * - /foodDonations/{foodDonationId}: Stores food donation information, accessible based on donor and NGO roles.
+ * - /pickupRequests/{pickupRequestId}: Stores pickup requests, linked to food donations and NGOs.
+ * - /deliveryConfirmations/{deliveryConfirmationId}: Stores delivery confirmations, linked to food donations and NGOs.
+ * - /mealRequests/{mealRequestId}: Stores meal requests, accessible to acceptors.
+ *
+ * Key Security Decisions:
+ * - User listing is disallowed for privacy.
+ * - `foodDonations`, `pickupRequests` and `deliveryConfirmations` duplicate authorization-related data. Specifically, `foodDonations` contain both `donorId` and `ngoId`.  `pickupRequests` contain `ngoId` and a reference to `foodDonationId`. `deliveryConfirmations` contain `ngoId` and a reference to `foodDonationId`.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Secure user profiles with path-based ownership.
+     * @path /users/{userId}
+     * @allow (create) - User with ID 'user123' can create their own profile.
+     *    // request.auth.uid == 'user123'
+     * @allow (get, list, update, delete) - User with ID 'user123' can read, update, and delete their own profile.
+     *    // request.auth.uid == 'user123'
+     * @deny (create, update, delete) - User with ID 'otherUser' cannot create, update, or delete the profile of user 'user123'.
+     *    // request.auth.uid == 'otherUser'
+     * @principle Enforces document ownership for writes, restricts access to a user's own data tree.
+     */
+    match /users/{userId} {
+      // isOwner is used to check request.auth.uid == userId
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
+      // isExistingOwner is used to check that document exists and the user is the owner
+      function isExistingOwner(userId) {
+        return (isOwner(userId) && resource != null);
+      }
+
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Secure food donation information.
+     * @path /foodDonations/{foodDonationId}
+     * @allow (get, list) - Any user can read the food donation information.
+     * @allow (create) - A donor with ID 'donor123' can create a food donation with donorId 'donor123'.
+     *    // request.auth.uid == 'donor123' && request.resource.data.donorId == 'donor123'
+     * @allow (update, delete) - A donor with ID 'donor123' can update and delete their own food donation where donorId is 'donor123'.
+     *    // request.auth.uid == 'donor123' && resource.data.donorId == 'donor123'
+     * @deny (create, update, delete) - A user with ID 'otherUser' cannot create a food donation with donorId 'donor123', or update/delete food donations created by 'donor123'.
+     *    // request.auth.uid == 'otherUser'
+     * @principle Allows public reads but restricts writes to the owner (donor). Validates relational integrity on create.
+     */
+    match /foodDonations/{foodDonationId} {
+       // isOwner is used to check request.auth.uid == resource.data.donorId
+      function isOwner(donorId) {
+        return request.auth.uid == donorId;
+      }
+      // isExistingOwner is used to check that document exists and the user is the owner
+      function isExistingOwner(donorId) {
+        return (isOwner(donorId) && resource != null);
+      }
+
+      allow get, list: if true;
+      allow create: if request.resource.data.donorId == request.auth.uid;
+      allow update: if isExistingOwner(resource.data.donorId);
+      allow delete: if isExistingOwner(resource.data.donorId);
+    }
+
+    /**
+     * @description Secure pickup requests with NGO ownership and food donation reference.
+     * @path /pickupRequests/{pickupRequestId}
+     * @allow (get, list) - Any user can read the pickup request information.
+     * @allow (create) - An NGO with ID 'ngo123' can create a pickup request with ngoId 'ngo123'.
+     *    // request.auth.uid == 'ngo123' && request.resource.data.ngoId == 'ngo123'
+     * @allow (update, delete) - An NGO with ID 'ngo123' can update and delete their own pickup request where ngoId is 'ngo123'.
+     *    // request.auth.uid == 'ngo123' && resource.data.ngoId == 'ngo123'
+     * @deny (create, update, delete) - A user with ID 'otherUser' cannot create a pickup request with ngoId 'ngo123', or update/delete pickup requests created by 'ngo123'.
+     *    // request.auth.uid == 'otherUser'
+     * @principle Allows public reads but restricts writes to the owner (NGO). Validates relational integrity on create.
+     */
+    match /pickupRequests/{pickupRequestId} {
+      // isOwner is used to check request.auth.uid == resource.data.ngoId
+      function isOwner(ngoId) {
+        return request.auth.uid == ngoId;
+      }
+      // isExistingOwner is used to check that document exists and the user is the owner
+      function isExistingOwner(ngoId) {
+        return (isOwner(ngoId) && resource != null);
+      }
+
+      allow get, list: if true;
+      allow create: if request.resource.data.ngoId == request.auth.uid;
+      allow update: if isExistingOwner(resource.data.ngoId);
+      allow delete: if isExistingOwner(resource.data.ngoId);
+    }
+
+    /**
+     * @description Secure delivery confirmations with NGO ownership and food donation reference.
+     * @path /deliveryConfirmations/{deliveryConfirmationId}
+     * @allow (get, list) - Any user can read the delivery confirmation information.
+     * @allow (create) - An NGO with ID 'ngo123' can create a delivery confirmation with ngoId 'ngo123'.
+     *    // request.auth.uid == 'ngo123' && request.resource.data.ngoId == 'ngo123'
+     * @allow (update, delete) - An NGO with ID 'ngo123' can update and delete their own delivery confirmation where ngoId is 'ngo123'.
+     *    // request.auth.uid == 'ngo123' && resource.data.ngoId == 'ngo123'
+     * @deny (create, update, delete) - A user with ID 'otherUser' cannot create a delivery confirmation with ngoId 'ngo123', or update/delete delivery confirmations created by 'ngo123'.
+     *    // request.auth.uid == 'otherUser'
+     * @principle Allows public reads but restricts writes to the owner (NGO). Validates relational integrity on create.
+     */
+    match /deliveryConfirmations/{deliveryConfirmationId} {
+      // isOwner is used to check request.auth.uid == resource.data.ngoId
+      function isOwner(ngoId) {
+        return request.auth.uid == ngoId;
+      }
+      // isExistingOwner is used to check that document exists and the user is the owner
+      function isExistingOwner(ngoId) {
+        return (isOwner(ngoId) && resource != null);
+      }
+
+      allow get, list: if true;
+      allow create: if request.resource.data.ngoId == request.auth.uid;
+      allow update: if isExistingOwner(resource.data.ngoId);
+      allow delete: if isExistingOwner(resource.data.ngoId);
+    }
+
+    /**
+     * @description Secure meal requests with acceptor ownership.
+     * @path /mealRequests/{mealRequestId}
+     * @allow (get, list) - Any user can read the meal request information.
+     * @allow (create) - An acceptor with ID 'acceptor123' can create a meal request with acceptorId 'acceptor123'.
+     *    // request.auth.uid == 'acceptor123' && request.resource.data.acceptorId == 'acceptor123'
+     * @allow (update, delete) - An acceptor with ID 'acceptor123' can update and delete their own meal request where acceptorId is 'acceptor123'.
+     *    // request.auth.uid == 'acceptor123' && resource.data.acceptorId == 'acceptor123'
+     * @deny (create, update, delete) - A user with ID 'otherUser' cannot create a meal request with acceptorId 'acceptor123', or update/delete meal requests created by 'acceptor123'.
+     *    // request.auth.uid == 'otherUser'
+     * @principle Allows public reads but restricts writes to the owner (acceptor). Validates relational integrity on create.
+     */
+    match /mealRequests/{mealRequestId} {
+      // isOwner is used to check request.auth.uid == resource.data.acceptorId
+      function isOwner(acceptorId) {
+        return request.auth.uid == acceptorId;
+      }
+      // isExistingOwner is used to check that document exists and the user is the owner
+      function isExistingOwner(acceptorId) {
+        return (isOwner(acceptorId) && resource != null);
+      }
+
+      allow get, list: if true;
+      allow create: if request.resource.data.acceptorId == request.auth.uid;
+      allow update: if isExistingOwner(resource.data.acceptorId);
+      allow delete: if isExistingOwner(resource.data.acceptorId);
+    }
+  }
+}
