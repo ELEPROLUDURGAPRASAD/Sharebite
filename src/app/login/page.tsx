@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { UtensilsCrossed } from 'lucide-react';
+import { Salad } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LoginPage() {
@@ -16,7 +16,7 @@ export default function LoginPage() {
         <Card className="shadow-2xl rounded-2xl border-2 border-opacity-50">
            <CardHeader className="text-center space-y-4">
              <div className="flex justify-center">
-               <UtensilsCrossed className="w-16 h-16 text-primary" />
+               <Salad className="w-16 h-16 text-primary" />
              </div>
             <CardTitle className="font-headline text-5xl text-primary">
               ShareBite
