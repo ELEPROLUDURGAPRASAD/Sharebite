@@ -57,7 +57,7 @@ export default function DonorDashboard() {
               <div className="space-y-2">
                 <Label>Pay to Mobile Number</Label>
                 <p className="text-lg font-semibold tracking-wider p-3 bg-secondary rounded-md">
-                  +1 800-SHARE-BITE
+                  8790639039
                 </p>
               </div>
               <Button type="submit" size="lg" className="w-full">
