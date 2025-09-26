@@ -138,7 +138,7 @@ export default function DonationForm() {
             <Input
               id="location"
               placeholder="Enter full pickup address"
-              defaultValue="123 Abids Road, Hyderabad, India"
+              defaultValue="123 Main Street, Warangal, Telangana, India"
             />
           </div>
 

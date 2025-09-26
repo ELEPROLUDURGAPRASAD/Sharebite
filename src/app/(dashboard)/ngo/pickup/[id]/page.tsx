@@ -16,14 +16,14 @@ const containerStyle = {
 
 // Replace with donor's actual location for a real implementation
 const donorLocation = {
-  lat: 17.3616,
-  lng: 78.4747,
+  lat: 17.9689,
+  lng: 79.5941,
 };
 
 // Replace with NGO's current location
 const ngoLocation = {
-    lat: 17.4435,
-    lng: 78.3772
+    lat: 18.0000,
+    lng: 79.5833
 }
 
 
@@ -153,7 +153,7 @@ export default function PickupPage({ params }: { params: { id: string } }) {
                     </CardHeader>
                     <CardContent>
                         <p>Gourmet Grill</p>
-                        <p className="text-muted-foreground">Near Charminar, Hyderabad, India</p>
+                        <p className="text-muted-foreground">Warangal, Telangana, India</p>
                         <Button variant="outline" className="w-full mt-4" onClick={handleNavigate}>
                             <Navigation className="mr-2 h-4 w-4"/>
                             Navigate
