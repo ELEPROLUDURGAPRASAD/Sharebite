@@ -32,7 +32,6 @@ export default function PickupPage({ params }: { params: { id: string } }) {
   );
   const router = useRouter();
   const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
-  const [mapLoaded, setMapLoaded] = useState(false);
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -45,6 +44,14 @@ export default function PickupPage({ params }: { params: { id: string } }) {
 
   const handleDone = () => {
     router.push('/ngo');
+  };
+
+  const handleNavigate = () => {
+    if (donorLocation) {
+        const { lat, lng } = donorLocation;
+        const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+        window.open(url, '_blank');
+    }
   };
 
   const calculateRoute = () => {
@@ -135,7 +142,7 @@ export default function PickupPage({ params }: { params: { id: string } }) {
                     <CardContent>
                         <p>Gourmet Grill</p>
                         <p className="text-muted-foreground">123 MG Road, Mumbai, India</p>
-                        <Button variant="outline" className="w-full mt-4">
+                        <Button variant="outline" className="w-full mt-4" onClick={handleNavigate}>
                             <Navigation className="mr-2 h-4 w-4"/>
                             Navigate
                         </Button>
