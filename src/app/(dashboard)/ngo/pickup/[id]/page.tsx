@@ -15,14 +15,14 @@ const containerStyle = {
 
 // Replace with donor's actual location for a real implementation
 const donorLocation = {
-  lat: 34.0522,
-  lng: -118.2437,
+  lat: 19.0760,
+  lng: 72.8777,
 };
 
 // Replace with NGO's current location
 const ngoLocation = {
-    lat: 34.0592,
-    lng: -118.2597
+    lat: 19.0213,
+    lng: 72.8424
 }
 
 
@@ -36,7 +36,7 @@ export default function PickupPage({ params }: { params: { id: string } }) {
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "AIzaSyCIBPCw-_TC2l4JVaSLBCdp8nZEky5aayM",
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
   });
 
   const handlePickup = () => {
@@ -134,7 +134,7 @@ export default function PickupPage({ params }: { params: { id: string } }) {
                     </CardHeader>
                     <CardContent>
                         <p>Gourmet Grill</p>
-                        <p className="text-muted-foreground">123 Main St, Anytown, USA</p>
+                        <p className="text-muted-foreground">123 MG Road, Mumbai, India</p>
                         <Button variant="outline" className="w-full mt-4">
                             <Navigation className="mr-2 h-4 w-4"/>
                             Navigate

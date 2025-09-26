@@ -12,7 +12,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { DollarSign, HandHeart, Upload } from 'lucide-react';
+import { IndianRupee, HandHeart, Upload } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
@@ -69,24 +69,24 @@ export default function DonorDashboard() {
               <form onSubmit={handleContributionSubmit} id="contribution-form" className="mt-4 space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="donor-name">Donor Name</Label>
-                  <Input id="donor-name" defaultValue="Jane Doe" required />
+                  <Input id="donor-name" defaultValue="Priya Sharma" required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="donor-mobile">Mobile Number</Label>
                   <Input
                     id="donor-mobile"
-                    defaultValue="+1 234 567 890"
+                    defaultValue="+91 98765 43210"
                     required
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="amount">Amount</Label>
                   <div className="relative">
-                    <DollarSign className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <IndianRupee className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="amount"
                       type="number"
-                      placeholder="50.00"
+                      placeholder="1000"
                       className="pl-8"
                       required
                     />

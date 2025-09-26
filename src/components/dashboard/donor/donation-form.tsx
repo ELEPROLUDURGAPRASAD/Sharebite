@@ -138,7 +138,7 @@ export default function DonationForm() {
             <Input
               id="location"
               placeholder="Enter full pickup address"
-              defaultValue="123 Main St, Anytown, USA"
+              defaultValue="123 MG Road, Mumbai, India"
             />
           </div>
 
@@ -153,14 +153,14 @@ export default function DonationForm() {
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="contact-name">Contact Name</Label>
-                  <Input id="contact-name" placeholder="John Doe" />
+                  <Input id="contact-name" placeholder="Rohan Kumar" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="contact-mobile">Mobile Number</Label>
                   <Input
                     id="contact-mobile"
                     type="tel"
-                    placeholder="+1 123 456 7890"
+                    placeholder="+91 98765 43210"
                   />
                 </div>
               </div>
