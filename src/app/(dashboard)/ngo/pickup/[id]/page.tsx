@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CheckCircle2, MapPin, Navigation } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, MapPin, Navigation, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { GoogleMap, useJsApiLoader, DirectionsRenderer } from '@react-google-maps/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const containerStyle = {
   width: '100%',
@@ -33,7 +34,7 @@ export default function PickupPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
 
-  const { isLoaded } = useJsApiLoader({
+  const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
   });
@@ -116,7 +117,18 @@ export default function PickupPage({ params }: { params: { id: string } }) {
             </div>
        
             <div className="flex-grow relative">
-                {isLoaded ? (
+                {loadError && (
+                    <div className="flex items-center justify-center h-full p-4">
+                        <Alert variant="destructive">
+                            <AlertTriangle className="h-4 w-4" />
+                            <AlertTitle>Map Error</AlertTitle>
+                            <AlertDescription>
+                                Google Maps could not be loaded. Please ensure your API key is configured correctly in the Google Cloud Console.
+                            </AlertDescription>
+                        </Alert>
+                    </div>
+                )}
+                {!loadError && isLoaded ? (
                     <GoogleMap
                     mapContainerStyle={containerStyle}
                     center={donorLocation}
@@ -130,7 +142,7 @@ export default function PickupPage({ params }: { params: { id: string } }) {
                         {directions && <DirectionsRenderer directions={directions} />}
                     </GoogleMap>
                 ) : (
-                    <div className="flex items-center justify-center h-full">Loading Map...</div>
+                   !loadError && <div className="flex items-center justify-center h-full">Loading Map...</div>
                 )}
             </div>
 
