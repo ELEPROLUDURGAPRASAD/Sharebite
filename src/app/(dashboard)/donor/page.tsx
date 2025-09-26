@@ -6,6 +6,7 @@ import {
   Sheet,
   SheetContent,
   SheetDescription,
+  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -16,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default function DonorDashboard() {
   const { toast } = useToast();
@@ -53,18 +55,18 @@ export default function DonorDashboard() {
               <HandHeart className="mr-2 h-5 w-5" /> Contribute Money
             </Button>
           </SheetTrigger>
-          <SheetContent>
-            <form onSubmit={handleContributionSubmit}>
-              <SheetHeader>
-                <SheetTitle className="font-headline text-3xl text-primary">
-                  Contribute Financially
-                </SheetTitle>
-                <SheetDescription>
-                  Your monetary contributions help us cover logistics and reach
-                  more people in need. Thank you for your support!
-                </SheetDescription>
-              </SheetHeader>
-              <div className="grid gap-6 py-6">
+          <SheetContent className="flex flex-col">
+            <SheetHeader>
+              <SheetTitle className="font-headline text-3xl text-primary">
+                Contribute Financially
+              </SheetTitle>
+              <SheetDescription>
+                Your monetary contributions help us cover logistics and reach
+                more people in need. Thank you for your support!
+              </SheetDescription>
+            </SheetHeader>
+            <ScrollArea className="flex-grow pr-6 -mr-6">
+              <form onSubmit={handleContributionSubmit} id="contribution-form" className="mt-4 space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="donor-name">Donor Name</Label>
                   <Input id="donor-name" defaultValue="Jane Doe" required />
@@ -124,7 +126,7 @@ export default function DonorDashboard() {
                 {receiptPreview && (
                   <div>
                     <Label>Receipt Preview</Label>
-                    <div className="mt-2 relative aspect-square w-full max-w-xs mx-auto overflow-hidden rounded-md">
+                    <div className="mt-2 relative aspect-video w-full mx-auto overflow-hidden rounded-md">
                       <Image
                         src={receiptPreview}
                         alt="Receipt preview"
@@ -134,12 +136,13 @@ export default function DonorDashboard() {
                     </div>
                   </div>
                 )}
-
-                <Button type="submit" size="lg" className="w-full mt-4">
-                  Submit Contribution
-                </Button>
-              </div>
-            </form>
+              </form>
+            </ScrollArea>
+             <SheetFooter className="mt-auto pt-4">
+              <Button type="submit" form="contribution-form" size="lg" className="w-full">
+                Submit Contribution
+              </Button>
+            </SheetFooter>
           </SheetContent>
         </Sheet>
       </div>
