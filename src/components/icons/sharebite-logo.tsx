@@ -12,12 +12,7 @@ export function ShareBiteLogo({
       {...props}
       xmlns="http://www.w3.org/2000/svg"
     >
-      <defs>
-        <clipPath id="clip0_101_2">
-          <rect width="128" height="128" rx="28" fill="white" />
-        </clipPath>
-      </defs>
-      <g clipPath="url(#clip0_101_2)">
+      <g>
         <rect width="128" height="128" rx="28" fill="#2586E9" />
         <path
           d="M87.5 107.5C87.5 110.261 85.2614 112.5 82.5 112.5H45.5C42.7386 112.5 40.5 110.261 40.5 107.5V100.5C40.5 97.7386 42.7386 95.5 45.5 95.5H82.5C85.2614 95.5 87.5 97.7386 87.5 100.5V107.5Z"
