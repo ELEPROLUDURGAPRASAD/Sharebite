@@ -1,4 +1,5 @@
 import AuthForm from '@/components/auth/auth-form';
+import ShareBiteLogo from '@/components/icons/sharebite-logo';
 import {
   Card,
   CardContent,
@@ -13,7 +14,8 @@ export default function Home() {
       <div className="w-full max-w-md">
         <Card className="shadow-2xl rounded-2xl border-2 border-opacity-50">
           <CardHeader className="text-center space-y-4">
-             <div className="flex justify-center">
+             <div className="flex justify-center items-center gap-4">
+                <ShareBiteLogo className="h-16 w-16" />
                 <span className="font-headline text-5xl text-primary">ShareBite</span>
              </div>
             <CardDescription className="text-lg pt-4">

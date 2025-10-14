@@ -1,4 +1,5 @@
 import { LoginForm } from '@/components/auth/login-form';
+import ShareBiteLogo from '@/components/icons/sharebite-logo';
 import {
   Card,
   CardContent,
@@ -15,7 +16,8 @@ export default function AcceptorLoginPage() {
       <div className="w-full max-w-sm">
         <Card className="shadow-2xl rounded-2xl border-2 border-opacity-50">
            <CardHeader className="text-center space-y-4">
-             <div className="flex justify-center">
+             <div className="flex justify-center items-center gap-4">
+                <ShareBiteLogo className="h-12 w-12" />
                 <span className="font-headline text-5xl text-primary">ShareBite</span>
              </div>
             <div className='flex justify-center items-center gap-2'>
@@ -29,7 +31,7 @@ export default function AcceptorLoginPage() {
           <CardContent>
             <LoginForm />
             <p className="mt-6 text-center text-sm">
-              Don&apos;t have an account?{' '}
+              Don't have an account?{' '}
               <Link href="/" className="font-semibold text-primary hover:underline">
                 Register
               </Link>
