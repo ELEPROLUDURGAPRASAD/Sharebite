@@ -15,12 +15,9 @@ export default function Home() {
         <Card className="shadow-2xl rounded-2xl border-2 border-opacity-50">
           <CardHeader className="text-center space-y-4">
              <div className="flex justify-center">
-                <ShareBiteLogo className="w-24 h-24" />
+                <ShareBiteLogo className="w-48 h-auto" />
              </div>
-            <CardTitle className="font-headline text-5xl text-primary">
-              ShareBite
-            </CardTitle>
-            <CardDescription className="text-lg">
+            <CardDescription className="text-lg pt-4">
               Join our community to share and receive food.
             </CardDescription>
           </CardHeader>
