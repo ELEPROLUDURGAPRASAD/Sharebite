@@ -17,7 +17,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Badge } from '../ui/badge';
+import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
@@ -42,7 +42,7 @@ export default function DashboardHeader() {
         href="/donor"
         className="flex items-center gap-2 text-lg font-semibold md:text-base"
       >
-        <ShareBiteLogo className="h-12 w-auto" />
+        <ShareBiteLogo className="w-auto h-10" />
       </Link>
       <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
         <Link

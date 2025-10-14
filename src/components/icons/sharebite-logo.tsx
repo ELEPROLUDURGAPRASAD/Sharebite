@@ -13,34 +13,17 @@ export function ShareBiteLogo({
       {...props}
       xmlns="http://www.w3.org/2000/svg"
     >
-      <defs>
-        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style={{ stopColor: '#4A90E2', stopOpacity: 1 }} />
-          <stop offset="100%" style={{ stopColor: '#255EB3', stopOpacity: 1 }} />
-        </linearGradient>
-      </defs>
       <g>
-        <rect width="128" height="128" rx="28" fill="url(#grad1)" />
-        <path 
-          d="M60.5,30 C75,30 85,40 85,55 C85,68 75,75 64,80 C53,85 45,92 45,100 C45,108 52,112 60,112 C75,112 85,105 85,95"
-          stroke="white" 
-          strokeWidth="10" 
-          fill="none" 
-          strokeLinecap="round"
+        <rect width="128" height="128" rx="28" fill="hsl(var(--primary))" />
+        <path
+          d="M45,64 C45,45 60,30 75,30 C90,30 100,45 100,64 C100,83 85,98 64,98 C43,98 45,83 45,64 Z"
+          fill="white"
+          transform="rotate(15, 64, 64)"
         />
-        <path 
-          d="M68,71 C78,66 82,58 82,50 C82,40 75,34 66,34"
-          stroke="#F5A623"
-          strokeWidth="10"
-          fill="none"
-          strokeLinecap="round"
-        />
-         <path 
-          d="M85,55 C85,45 78,38 70,38"
-          stroke="#FFFFFF"
-          strokeWidth="10"
-          fill="none"
-          strokeLinecap="round"
+        <path
+          d="M60,64 C60,55 65,50 72,50 C79,50 84,55 84,64 C84,73 79,78 72,78 C65,78 60,73 60,64 Z"
+          fill="hsl(var(--primary))"
+          transform="rotate(15, 64, 64)"
         />
       </g>
     </svg>
