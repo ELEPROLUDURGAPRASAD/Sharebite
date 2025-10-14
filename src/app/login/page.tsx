@@ -6,8 +6,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { HandHeart } from 'lucide-react';
 import Link from 'next/link';
+import { ShareBiteLogo } from '@/components/icons/sharebite-logo';
 
 export default function LoginPage() {
   return (
@@ -16,7 +16,7 @@ export default function LoginPage() {
         <Card className="shadow-2xl rounded-2xl border-2 border-opacity-50">
            <CardHeader className="text-center space-y-4">
              <div className="flex justify-center">
-               <HandHeart className="w-16 h-16 text-primary" />
+                <ShareBiteLogo className="w-24 h-24" />
              </div>
             <CardTitle className="font-headline text-5xl text-primary">
               ShareBite
