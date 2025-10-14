@@ -69,13 +69,13 @@ export default function DonorDashboard() {
               <form onSubmit={handleContributionSubmit} id="contribution-form" className="mt-4 space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="donor-name">Donor Name</Label>
-                  <Input id="donor-name" defaultValue="Priya Sharma" required />
+                  <Input id="donor-name" placeholder="Enter your name" required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="donor-mobile">Mobile Number</Label>
                   <Input
                     id="donor-mobile"
-                    defaultValue="+91 98765 43210"
+                    placeholder="Enter your mobile number"
                     required
                   />
                 </div>
@@ -140,7 +140,7 @@ export default function DonorDashboard() {
             </ScrollArea>
              <SheetFooter className="mt-auto pt-4">
               <Button type="submit" form="contribution-form" size="lg" className="w-full">
-                Submit Contribution
+                Confirm
               </Button>
             </SheetFooter>
           </SheetContent>

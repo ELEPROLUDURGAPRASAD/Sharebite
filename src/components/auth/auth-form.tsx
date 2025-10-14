@@ -22,9 +22,7 @@ import {
 import Link from 'next/link';
 import { useState } from 'react';
 import { useAuth, useFirestore } from '@/firebase';
-import { initiateEmailSignUp } from '@/firebase/non-blocking-login';
-import { doc } from 'firebase/firestore';
-import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { setDoc, doc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
@@ -40,26 +38,36 @@ function RegistrationForm({ role }: { role: UserRole }) {
   const [password, setPassword] = useState('');
   const [location, setLocation] = useState('');
   const [phone, setPhone] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const getRoleSpecifics = () => {
     switch (role) {
       case 'donor':
         return {
           nameLabel: 'Full Name / Organization Name',
-          icon: <User className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />,
+          icon: (
+            <User className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          ),
           dashboardUrl: '/donor',
+          loginUrl: '/login/donor',
         };
       case 'ngo':
         return {
           nameLabel: 'NGO Name',
-          icon: <Building className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />,
+          icon: (
+            <Building className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          ),
           dashboardUrl: '/ngo',
+          loginUrl: '/login/ngo',
         };
       case 'acceptor':
         return {
           nameLabel: 'Full Name',
-          icon: <HeartHandshake className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />,
+          icon: (
+            <HeartHandshake className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          ),
           dashboardUrl: '/acceptor',
+          loginUrl: '/login/acceptor',
         };
     }
   };
@@ -69,14 +77,17 @@ function RegistrationForm({ role }: { role: UserRole }) {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!auth || !firestore) return;
+    setIsLoading(true);
 
     try {
-      // Create user in Firebase Auth
-      await createUserWithEmailAndPassword(auth, email, password);
-      const user = auth.currentUser;
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
 
       if (user) {
-        // Save user data to Firestore
         const userRef = doc(firestore, 'users', user.uid);
         const userData = {
           id: user.uid,
@@ -86,7 +97,7 @@ function RegistrationForm({ role }: { role: UserRole }) {
           phone,
           location,
         };
-        setDocumentNonBlocking(userRef, userData, { merge: true });
+        await setDoc(userRef, userData, { merge: true });
 
         toast({
           title: 'Registration Successful',
@@ -101,6 +112,8 @@ function RegistrationForm({ role }: { role: UserRole }) {
         title: 'Registration Failed',
         description: error.message || 'An unexpected error occurred.',
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -110,39 +123,77 @@ function RegistrationForm({ role }: { role: UserRole }) {
         <Label htmlFor={`${role}-name`}>{nameLabel}</Label>
         <div className="relative">
           {icon}
-          <Input id={`${role}-name`} required className="pl-8" value={name} onChange={(e) => setName(e.target.value)} />
+          <Input
+            id={`${role}-name`}
+            required
+            className="pl-8"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            disabled={isLoading}
+          />
         </div>
       </div>
       <div className="space-y-2">
         <Label htmlFor={`${role}-email`}>Email</Label>
         <div className="relative">
           <Mail className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input id={`${role}-email`} required type="email" className="pl-8" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <Input
+            id={`${role}-email`}
+            required
+            type="email"
+            className="pl-8"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={isLoading}
+          />
         </div>
       </div>
-       <div className="space-y-2">
+      <div className="space-y-2">
         <Label htmlFor={`${role}-phone`}>Phone</Label>
         <div className="relative">
           <Phone className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input id={`${role}-phone`} required type="tel" className="pl-8" value={phone} onChange={(e) => setPhone(e.target.value)} />
+          <Input
+            id={`${role}-phone`}
+            required
+            type="tel"
+            className="pl-8"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            disabled={isLoading}
+          />
         </div>
       </div>
       <div className="space-y-2">
         <Label htmlFor={`${role}-password`}>Password</Label>
         <div className="relative">
           <KeyRound className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input id={`${role}-password`} required type="password" className="pl-8" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <Input
+            id={`${role}-password`}
+            required
+            type="password"
+            className="pl-8"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={isLoading}
+          />
         </div>
       </div>
       <div className="space-y-2">
         <Label htmlFor={`${role}-location`}>Location</Label>
         <div className="relative">
           <MapPin className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input id={`${role}-location`} required className="pl-8" value={location} onChange={(e) => setLocation(e.target.value)} />
+          <Input
+            id={`${role}-location`}
+            required
+            className="pl-8"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            disabled={isLoading}
+          />
         </div>
       </div>
-      <Button type="submit" className="w-full">
-        Register
+      <Button type="submit" className="w-full" disabled={isLoading}>
+        {isLoading ? 'Registering...' : 'Register'}
       </Button>
     </form>
   );
@@ -160,7 +211,7 @@ export default function AuthForm() {
       case 'acceptor':
         return '/login/acceptor';
       default:
-        return '/login/donor';
+        return '/login';
     }
   };
 
@@ -188,7 +239,10 @@ export default function AuthForm() {
       </Tabs>
       <p className="mt-4 text-center text-sm">
         Already have an account?{' '}
-        <Link href={getLoginLink()} className="font-semibold text-primary hover:underline">
+        <Link
+          href={getLoginLink()}
+          className="font-semibold text-primary hover:underline"
+        >
           Login
         </Link>
       </p>

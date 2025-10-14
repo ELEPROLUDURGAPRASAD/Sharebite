@@ -19,13 +19,14 @@ import {
 } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
-import { useAuth } from '@/firebase';
+import { useAuth, useUser } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import ShareBiteLogo from '@/components/icons/sharebite-logo';
 
 export default function DashboardHeader() {
   const auth = useAuth();
+  const { user } = useUser();
   const router = useRouter();
 
   const handleLogout = () => {
@@ -131,14 +132,14 @@ export default function DashboardHeader() {
           <DropdownMenuTrigger asChild>
             <Button variant="secondary" size="icon" className="rounded-full">
               <Avatar>
-                <AvatarImage src="https://picsum.photos/seed/user-avatar/40/40" />
-                <AvatarFallback>U</AvatarFallback>
+                <AvatarImage src={user?.photoURL || "https://picsum.photos/seed/user-avatar/40/40"} />
+                <AvatarFallback>{user?.displayName?.charAt(0) || user?.email?.charAt(0) || 'U'}</AvatarFallback>
               </Avatar>
               <span className="sr-only">Toggle user menu</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuLabel>{user?.displayName || user?.email}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>

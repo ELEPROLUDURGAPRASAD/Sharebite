@@ -5,7 +5,6 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
 } from '@/components/ui/card';
 import Link from 'next/link';
 
@@ -14,11 +13,13 @@ export default function LoginPage() {
     <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-8 bg-background">
       <div className="w-full max-w-sm">
         <Card className="shadow-2xl rounded-2xl border-2 border-opacity-50">
-           <CardHeader className="text-center space-y-4">
-             <div className="flex justify-center items-center gap-4">
-                <ShareBiteLogo className="h-16 w-16" />
-                <span className="font-headline text-5xl text-primary">ShareBite</span>
-             </div>
+          <CardHeader className="text-center space-y-4">
+            <div className="flex justify-center items-center gap-4">
+              <ShareBiteLogo className="h-16 w-16" />
+              <span className="font-headline text-5xl text-primary">
+                ShareBite
+              </span>
+            </div>
             <CardDescription className="text-lg pt-4">
               Welcome back! Please sign in.
             </CardDescription>
@@ -26,8 +27,11 @@ export default function LoginPage() {
           <CardContent>
             <LoginForm />
             <p className="mt-6 text-center text-sm">
-              Don't have an account?{' '}
-              <Link href="/" className="font-semibold text-primary hover:underline">
+              Don&apos;t have an account?{' '}
+              <Link
+                href="/"
+                className="font-semibold text-primary hover:underline"
+              >
                 Register
               </Link>
             </p>

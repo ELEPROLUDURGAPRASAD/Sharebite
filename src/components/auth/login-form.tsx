@@ -4,15 +4,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth, useFirestore, useUser } from '@/firebase';
-import { initiateEmailSignIn } from '@/firebase/non-blocking-login';
 import { useToast } from '@/hooks/use-toast';
 import { doc, getDoc } from 'firebase/firestore';
 import { KeyRound, Mail } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 export function LoginForm() {
   const router = useRouter();
+  const pathname = usePathname();
   const auth = useAuth();
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
@@ -20,6 +21,7 @@ export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const checkUserAndRedirect = async () => {
@@ -44,37 +46,54 @@ export function LoginForm() {
                 router.push('/acceptor');
                 break;
               default:
-                // Fallback to a default dashboard if userType is not set
                 router.push('/donor');
                 break;
             }
           } else {
-             // Handle case where user exists in Auth but not in Firestore
-            router.push('/donor');
+             const roleFromPath = pathname.split('/')[2];
+             if(roleFromPath === 'donor' || roleFromPath === 'ngo' || roleFromPath === 'acceptor') {
+                router.push(`/${roleFromPath}`);
+             } else {
+                router.push('/donor');
+             }
           }
         } catch (error) {
-            console.error("Failed to fetch user data:", error)
-            // Fallback redirection
-            router.push('/donor');
+            console.error("Failed to fetch user data:", error);
+            router.push('/donor'); // Fallback redirection
         }
       }
     };
 
-    if (!isUserLoading) {
+    if (!isUserLoading && !isLoading) {
       checkUserAndRedirect();
     }
-  }, [user, isUserLoading, firestore, router, isRedirecting]);
+  }, [user, isUserLoading, firestore, router, isRedirecting, isLoading, pathname]);
 
-  const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (auth) {
-        initiateEmailSignIn(auth, email, password);
+    if (!auth) return;
+    setIsLoading(true);
+    
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
         toast({
             title: "Logging In...",
             description: "Please wait while we sign you in.",
-        })
+        });
+        // The useEffect will handle redirection
+    } catch(error: any) {
+        toast({
+            variant: "destructive",
+            title: "Login Failed",
+            description: error.message || "Invalid credentials. Please try again.",
+        });
+        setIsLoading(false);
     }
   };
+
+  if(isUserLoading || isRedirecting) {
+    return <p className='text-center'>Loading...</p>
+  }
 
   return (
     <form onSubmit={handleLogin} className="space-y-4">
@@ -89,6 +108,7 @@ export function LoginForm() {
             className="pl-8"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            disabled={isLoading}
           />
         </div>
       </div>
@@ -103,11 +123,12 @@ export function LoginForm() {
             className="pl-8"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={isLoading}
           />
         </div>
       </div>
-      <Button type="submit" className="w-full">
-        Login
+      <Button type="submit" className="w-full" disabled={isLoading}>
+        {isLoading ? 'Logging in...' : 'Login'}
       </Button>
     </form>
   );

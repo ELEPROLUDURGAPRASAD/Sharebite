@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -8,6 +7,7 @@ import {
   CheckCircle2,
   MapPin,
   Navigation,
+  Loader2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -21,16 +21,13 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { useDoc, useFirebase, useMemoFirebase } from '@/firebase';
+import { FoodDonation, UserProfile } from '@/lib/types';
+import { doc, updateDoc, getDoc } from 'firebase/firestore';
 
 const containerStyle = {
   width: '100%',
   height: '100%',
-};
-
-// Replace with donor's actual location for a real implementation
-const donorLocation = {
-  lat: 17.9689,
-  lng: 79.5941,
 };
 
 export default function PickupPage({ params }: { params: { id: string } }) {
@@ -38,15 +35,38 @@ export default function PickupPage({ params }: { params: { id: string } }) {
     'collecting'
   );
   const router = useRouter();
+  const { toast } = useToast();
+  const { firestore } = useFirebase();
   const [directions, setDirections] =
     useState<google.maps.DirectionsResult | null>(null);
-  const { toast } = useToast();
-
   const [ngoLocation, setNgoLocation] = useState<{
     lat: number;
     lng: number;
   } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
+  const [donor, setDonor] = useState<UserProfile | null>(null);
+
+  const donationRef = useMemoFirebase(() => {
+    if (!firestore || !params.id) return null;
+    return doc(firestore, 'foodDonations', params.id);
+  }, [firestore, params.id]);
+
+  const {
+    data: donation,
+    isLoading: donationLoading,
+    error: donationError,
+  } = useDoc<FoodDonation>(donationRef);
+
+  useEffect(() => {
+    if (donation && firestore && !donor) {
+      const donorRef = doc(firestore, 'users', donation.donorId);
+      getDoc(donorRef).then((docSnap) => {
+        if (docSnap.exists()) {
+          setDonor(docSnap.data() as UserProfile);
+        }
+      });
+    }
+  }, [donation, firestore, donor]);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -61,7 +81,7 @@ export default function PickupPage({ params }: { params: { id: string } }) {
         (error) => {
           console.error('Error getting user location:', error);
           setLocationError(
-            'Could not get your location. Please enable location services and refresh the page.'
+            'Could not get your location. Please enable location services.'
           );
           toast({
             variant: 'destructive',
@@ -73,11 +93,6 @@ export default function PickupPage({ params }: { params: { id: string } }) {
       );
     } else {
       setLocationError('Geolocation is not supported by this browser.');
-      toast({
-        variant: 'destructive',
-        title: 'Geolocation Not Supported',
-        description: 'Your browser does not support geolocation.',
-      });
     }
   }, [toast]);
 
@@ -86,8 +101,50 @@ export default function PickupPage({ params }: { params: { id: string } }) {
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
   });
 
-  const handlePickup = () => {
-    setStatus('delivering');
+  const donorLocation = useMemo(() => {
+    if (!donor) return null;
+    // This is a placeholder. In a real app, you'd parse donor.location
+    // which should ideally be a GeoPoint or a structured address.
+    return { lat: 17.9689, lng: 79.5941 };
+  }, [donor]);
+
+  const calculateRoute = () => {
+    if (window.google && window.google.maps && ngoLocation && donorLocation) {
+      const directionsService = new window.google.maps.DirectionsService();
+      directionsService.route(
+        {
+          origin: ngoLocation,
+          destination: donorLocation,
+          travelMode: window.google.maps.TravelMode.DRIVING,
+        },
+        (result, status) => {
+          if (status === window.google.maps.DirectionsStatus.OK) {
+            setDirections(result);
+          } else {
+            console.error(`error fetching directions ${result}`);
+            toast({
+              variant: 'destructive',
+              title: 'Could not calculate route',
+            });
+          }
+        }
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (isLoaded && ngoLocation && donorLocation) {
+      calculateRoute();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded, ngoLocation, donorLocation]);
+
+  const handlePickup = async () => {
+    if (donationRef) {
+      await updateDoc(donationRef, { status: 'picked-up' });
+      setStatus('delivering');
+      toast({ title: 'Food collected!', description: 'Status updated to picked-up.' });
+    }
   };
 
   const handleDone = () => {
@@ -101,33 +158,14 @@ export default function PickupPage({ params }: { params: { id: string } }) {
       window.open(url, '_blank');
     }
   };
-
-  const calculateRoute = () => {
-    if (window.google && window.google.maps && ngoLocation) {
-      const directionsService = new window.google.maps.DirectionsService();
-      directionsService.route(
-        {
-          origin: ngoLocation,
-          destination: donorLocation,
-          travelMode: window.google.maps.TravelMode.DRIVING,
-        },
-        (result, status) => {
-          if (status === window.google.maps.DirectionsStatus.OK) {
-            setDirections(result);
-          } else {
-            console.error(`error fetching directions ${result}`);
-          }
-        }
-      );
-    }
-  };
-
-  useEffect(() => {
-    if (isLoaded && ngoLocation) {
-      calculateRoute();
-    }
-     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoaded, ngoLocation]);
+  
+  if (donationLoading) {
+     return <div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>;
+  }
+  
+  if (donationError) {
+      return <Alert variant="destructive"><AlertTitle>Error</AlertTitle><AlertDescription>{donationError.message}</AlertDescription></Alert>
+  }
 
   if (status === 'delivering') {
     return (
@@ -140,13 +178,13 @@ export default function PickupPage({ params }: { params: { id: string } }) {
             <div className="p-6 bg-secondary rounded-full">
               <CheckCircle2 className="h-20 w-20 text-primary" />
             </div>
-            <h2 className="text-3xl font-bold font-headline">Food Delivered</h2>
+            <h2 className="text-3xl font-bold font-headline">Food Picked Up</h2>
             <p className="text-muted-foreground text-lg">
-              Thank you for your contribution!
+              Thank you for your service!
             </p>
           </div>
           <Button size="lg" className="w-full mt-8" onClick={handleDone}>
-            Done
+            Back to Dashboard
           </Button>
         </div>
       </div>
@@ -178,8 +216,7 @@ export default function PickupPage({ params }: { params: { id: string } }) {
                 <AlertTriangle className="h-4 w-4" />
                 <AlertTitle>Map Error</AlertTitle>
                 <AlertDescription>
-                  Google Maps could not be loaded. This could be due to an
-                  invalid API key or network issues. Please try opening in
+                  Google Maps could not be loaded. Please try opening in
                   Google Maps directly.
                 </AlertDescription>
               </Alert>
@@ -194,7 +231,7 @@ export default function PickupPage({ params }: { params: { id: string } }) {
               </Alert>
             </div>
           )}
-          {!loadError && !locationError && isLoaded ? (
+          {!loadError && !locationError && isLoaded && center ? (
             <GoogleMap
               mapContainerStyle={containerStyle}
               center={center}
@@ -210,7 +247,8 @@ export default function PickupPage({ params }: { params: { id: string } }) {
             !loadError &&
             !locationError && (
               <div className="flex items-center justify-center h-full">
-                Loading Map...
+                <Loader2 className="h-8 w-8 animate-spin" />
+                <p className="ml-4">Loading Map...</p>
               </div>
             )
           )}
@@ -224,15 +262,16 @@ export default function PickupPage({ params }: { params: { id: string } }) {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p>Gourmet Grill</p>
-              <p className="text-muted-foreground">Warangal, Telangana, India</p>
+              <p>{donor?.name || 'Loading...'}</p>
+              <p className="text-muted-foreground">{donation?.location}</p>
               <Button
                 variant="outline"
                 className="w-full mt-4"
                 onClick={handleNavigate}
+                disabled={!donorLocation}
               >
                 <Navigation className="mr-2 h-4 w-4" />
-                Navigate
+                Navigate in Google Maps
               </Button>
             </CardContent>
           </Card>
@@ -240,7 +279,7 @@ export default function PickupPage({ params }: { params: { id: string } }) {
             size="lg"
             className="w-full mt-4"
             onClick={handlePickup}
-            disabled={!ngoLocation}
+            disabled={!ngoLocation || !donation}
           >
             Picked up
           </Button>

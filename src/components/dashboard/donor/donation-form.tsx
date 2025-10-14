@@ -1,5 +1,5 @@
 'use client';
-
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -11,10 +11,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  RadioGroup,
-  RadioGroupItem,
-} from '@/components/ui/radio-group';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Select,
   SelectContent,
@@ -41,6 +38,9 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { useToast } from '@/hooks/use-toast';
+import { FoodDonation } from '@/lib/types';
+import { useAuth } from '@/firebase';
+import { createDonation } from '@/app/actions';
 
 const donorTypes = [
   { id: 'restaurant', label: 'Restaurant', icon: Salad },
@@ -52,15 +52,69 @@ const donorTypes = [
 ];
 
 export default function DonationForm() {
-    const { toast } = useToast();
+  const { toast } = useToast();
+  const auth = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [photoDataUri, setPhotoDataUri] = useState<string | null>(null);
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    if (!photoDataUri) {
+      toast({
+        title: 'Image Required',
+        description: 'Please upload a photo of the food donation.',
+        variant: 'destructive',
+      });
+      setIsLoading(false);
+      return;
+    }
+    
+    if(!auth.currentUser){
+         toast({
+            title: "Authentication Error",
+            description: "You must be logged in to create a donation.",
+            variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+    }
+
+
+    const formData = new FormData(e.currentTarget);
+    const donationData = {
+        donorCategory: formData.get('donorCategory') as FoodDonation['donorCategory'],
+        foodType: formData.get('foodType') as string,
+        quantity: Number(formData.get('quantity')),
+        expiry: new Date(formData.get('expiry') as string).toISOString(),
+        location: formData.get('location') as string,
+        contactName: formData.get('contact-name') as string,
+        contactMobile: formData.get('contact-mobile') as string,
+        otherDetails: formData.get('other-details') as string,
+    }
+
+    try {
+        const token = await auth.currentUser.getIdToken();
+        await createDonation(donationData, photoDataUri, token);
+
         toast({
             title: "Submission Successful!",
             description: "Your donation has been listed. An NGO will be notified.",
         });
+        (e.target as HTMLFormElement).reset();
+        // Optionally reset image preview state here
+    } catch (error: any) {
+        console.error("Donation creation failed:", error);
+        toast({
+            title: "Submission Failed",
+            description: error.message || "Could not save your donation. Please try again.",
+            variant: "destructive",
+        });
+    } finally {
+        setIsLoading(false);
     }
+  };
 
   return (
     <form onSubmit={handleSubmit}>
@@ -80,15 +134,12 @@ export default function DonationForm() {
             </Label>
             <RadioGroup
               defaultValue="restaurant"
+              name="donorCategory"
               className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
             >
               {donorTypes.map(({ id, label, icon: Icon }) => (
                 <div key={id}>
-                  <RadioGroupItem
-                    value={id}
-                    id={id}
-                    className="peer sr-only"
-                  />
+                  <RadioGroupItem value={id} id={id} className="peer sr-only" />
                   <Label
                     htmlFor={id}
                     className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
@@ -104,19 +155,24 @@ export default function DonationForm() {
           <div className="grid md:grid-cols-3 gap-6">
             <div className="space-y-2">
               <Label htmlFor="food-type">Food Type</Label>
-              <Input id="food-type" placeholder="e.g., Cooked Meals, Bread" />
+              <Input
+                id="food-type"
+                name="foodType"
+                placeholder="e.g., Cooked Meals, Bread"
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="quantity">Quantity</Label>
-              <Select>
+              <Select name="quantity" required>
                 <SelectTrigger id="quantity">
                   <SelectValue placeholder="Select quantity" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="1-10">Serves 1-10 people</SelectItem>
-                  <SelectItem value="11-30">Serves 11-30 people</SelectItem>
-                  <SelectItem value="31-50">Serves 31-50 people</SelectItem>
-                  <SelectItem value="51+">Serves 51+ people</SelectItem>
+                  <SelectItem value="10">Serves 1-10 people</SelectItem>
+                  <SelectItem value="30">Serves 11-30 people</SelectItem>
+                  <SelectItem value="50">Serves 31-50 people</SelectItem>
+                  <SelectItem value="51">Serves 51+ people</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -124,12 +180,18 @@ export default function DonationForm() {
               <Label htmlFor="expiry">Best Before / Expiry</Label>
               <div className="relative">
                 <CalendarClock className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input id="expiry" type="datetime-local" className="pl-8" />
+                <Input
+                  id="expiry"
+                  name="expiry"
+                  type="datetime-local"
+                  className="pl-8"
+                  required
+                />
               </div>
             </div>
           </div>
 
-          <ImageAnalysis />
+          <ImageAnalysis onImageUpload={setPhotoDataUri} />
 
           <div className="space-y-2">
             <Label htmlFor="location">
@@ -137,14 +199,15 @@ export default function DonationForm() {
             </Label>
             <Input
               id="location"
+              name="location"
               placeholder="Enter full pickup address"
-              defaultValue="123 Main Street, Warangal, Telangana, India"
+              required
             />
           </div>
 
           <Collapsible>
             <CollapsibleTrigger asChild>
-              <Button variant="outline" className="w-full justify-between">
+              <Button variant="outline" className="w-full justify-between" type="button">
                 Other Details (Optional)
                 <ChevronDown className="h-4 w-4" />
               </Button>
@@ -153,12 +216,13 @@ export default function DonationForm() {
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="contact-name">Contact Name</Label>
-                  <Input id="contact-name" placeholder="Rohan Kumar" />
+                  <Input id="contact-name" name="contact-name" placeholder="Rohan Kumar" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="contact-mobile">Mobile Number</Label>
                   <Input
                     id="contact-mobile"
+                    name="contact-mobile"
                     type="tel"
                     placeholder="+91 98765 43210"
                   />
@@ -168,6 +232,7 @@ export default function DonationForm() {
                 <Label htmlFor="other-details">Additional Notes</Label>
                 <Textarea
                   id="other-details"
+                  name="other-details"
                   placeholder="Any special instructions for pickup..."
                 />
               </div>
@@ -175,7 +240,9 @@ export default function DonationForm() {
           </Collapsible>
         </CardContent>
         <CardFooter>
-          <Button size="lg" className="w-full" type="submit">Submit Donation</Button>
+          <Button size="lg" className="w-full" type="submit" disabled={isLoading}>
+            {isLoading ? "Submitting..." : "Submit Donation"}
+          </Button>
         </CardFooter>
       </Card>
     </form>

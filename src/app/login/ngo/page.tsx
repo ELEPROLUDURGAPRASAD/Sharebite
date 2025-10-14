@@ -31,7 +31,7 @@ export default function NgoLoginPage() {
           <CardContent>
             <LoginForm />
             <p className="mt-6 text-center text-sm">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link href="/" className="font-semibold text-primary hover:underline">
                 Register
               </Link>
