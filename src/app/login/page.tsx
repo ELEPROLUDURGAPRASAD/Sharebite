@@ -7,7 +7,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import Link from 'next/link';
-import { ShareBiteLogo } from '@/components/icons/sharebite-logo';
 
 export default function LoginPage() {
   return (
@@ -16,7 +15,7 @@ export default function LoginPage() {
         <Card className="shadow-2xl rounded-2xl border-2 border-opacity-50">
            <CardHeader className="text-center space-y-4">
              <div className="flex justify-center">
-                <ShareBiteLogo className="w-48 h-auto" />
+                <span className="font-headline text-5xl text-primary">ShareBite</span>
              </div>
             <CardDescription className="text-lg pt-4">
               Welcome back! Please sign in.
