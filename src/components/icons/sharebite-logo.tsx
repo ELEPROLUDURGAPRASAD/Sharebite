@@ -15,37 +15,16 @@ export function ShareBiteLogo({
     >
       <defs>
         <style>
-          {`.sharebite-text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; font-weight: bold; font-size: 18px; fill: white; }`}
+          {`.sharebite-text { font-family: 'Belleza', sans-serif; font-size: 20px; fill: #273222; }`}
         </style>
       </defs>
-      <rect width="128" height="128" rx="28" fill="#2563EB" />
-      
-      {/* Bowl and Hand */}
-      <path d="M28 80.5C31.2889 79.5444 45.4 75.2 50.5 75.5C57.5 76 77.5 83 80.5 84C85.5 85.5 91.5 86.5 95 82.5C98.5 78.5 95.7333 76.8 93.5 75C89.5 72 80.8333 70.1667 76.5 70H50.5C40.5 70 33.5 71.5 30 73.5C27.5 75 26.5 77.5 28 80.5Z" fill="#F97316"/>
-      <path d="M34.5 70C34.5 63.5 39.8333 59.8333 46.5 59.5H81.5C88.1667 59.8333 93.5 63.5 93.5 70H34.5Z" fill="#FBBF24"/>
-
-      {/* Food items */}
-      <path d="M57.5 48C57.5 44.5 59.5 42 63.5 42C67.5 42 69.5 44.5 69.5 48V59.5H57.5V48Z" fill="#22C55E"/>
-      <path d="M51 60C51 60 52 56 55 54C58 52 61 54 61 54L59 60H51Z" fill="#16A34A"/>
-
-      <path d="M41.5 60V53C41.5 50 43.5 48 46.5 48C49.5 48 51.5 50 51.5 53V60H41.5Z" fill="#F97316"/>
-      <path d="M51.5 53C51.5 50.5 50 49 48 49C46 49 45.5 50.5 45.5 52.5" stroke="#FDBA74" strokeWidth="1" strokeLinecap="round"/>
-
-      <path d="M68 60V52C68 49.5 69.5 47.5 72 47.5C74.5 47.5 76 49.5 76 52V60H68Z" fill="#A16207"/>
-      
-      <path d="M75 60V54C75 51.5 76.5 49.5 79 49.5C81.5 49.5 83 51.5 83 54V60H75Z" fill="#FBBF24"/>
-
-      {/* Rice */}
-      <path d="M63 59.5C61.8333 60.1667 60.5 61 60 62H66C65.5 61 64.1667 60.1667 63 59.5Z" fill="white" />
-      <path d="M72 59.5C70.8333 60.1667 69.5 61 69 62H75C74.5 61 73.1667 60.1667 72 59.5Z" fill="white" />
-      <path d="M80 59.5C78.8333 60.1667 77.5 61 77 62H83C82.5 61 81.1667 60.1667 80 59.5Z" fill="white" />
-      
-      {/* Signal */}
-      <path d="M54 44C57.3333 41.3333 64.4 39.2 74 42" stroke="white" strokeWidth="3" strokeLinecap="round"/>
-      <path d="M58 38C60.5 36 65.6 34.4 71.5 36.5" stroke="white" strokeWidth="3" strokeLinecap="round"/>
-      
-      {/* Text */}
-      <text x="24" y="106" className="sharebite-text">ShareBite</text>
+      <path d="M40.1654 114.667C24.5134 114.667 11.832 101.986 11.832 86.3333V41.6667C11.832 26.0147 24.5134 13.3333 40.1654 13.3333H87.832C103.484 13.3333 116.165 26.0147 116.165 41.6667V86.3333C116.165 101.986 103.484 114.667 87.832 114.667H40.1654Z" fill="#F97316"/>
+      <path d="M64 88C77.2548 88 88 77.2548 88 64C88 50.7452 77.2548 40 64 40C50.7452 40 40 50.7452 40 64C40 77.2548 50.7452 88 64 88Z" fill="#FDF3E6"/>
+      <path d="M64 82.6667C74.3051 82.6667 82.6667 74.3051 82.6667 64C82.6667 53.6949 74.3051 45.3333 64 45.3333C53.6949 45.3333 45.3333 53.6949 45.3333 64C45.3333 74.3051 53.6949 82.6667 64 82.6667Z" fill="#F97316" stroke="#FDF3E6" strokeWidth="2.66667"/>
+      <path d="M64 77.3333C70.9411 77.3333 76.6667 71.6078 76.6667 64.6667C76.6667 57.7255 70.9411 52 64 52C57.0589 52 51.3333 57.7255 51.3333 64.6667C51.3333 71.6078 57.0589 77.3333 64 77.3333Z" fill="#FDF3E6"/>
+      <path d="M56 61.3333L64 54L72 61.3333" stroke="#F97316" strokeWidth="2.66667" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M64 54V72" stroke="#F97316" strokeWidth="2.66667" strokeLinecap="round" strokeLinejoin="round"/>
+      <text x="30" y="36" className="sharebite-text">ShareBite</text>
     </svg>
   );
 }
