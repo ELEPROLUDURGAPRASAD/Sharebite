@@ -40,8 +40,6 @@ export async function createDonation(donation: Omit<FoodDonation, 'id' | 'donorI
     const decodedToken = await auth.verifyIdToken(token);
     const donorId = decodedToken.uid;
 
-    // In a real app, you would upload the image to Cloud Storage and get the URL
-    // For this prototype, we'll just use the data URI as a placeholder
     const photoUrl = photoDataUri;
 
     const newDonation: Omit<FoodDonation, 'id'> = {
@@ -49,6 +47,9 @@ export async function createDonation(donation: Omit<FoodDonation, 'id' | 'donorI
         donorId,
         photoUrl,
         status: 'pending',
+        // Ensure optional fields are handled gracefully
+        contactName: donation.contactName || '',
+        contactMobile: donation.contactMobile || '',
     };
 
     const docRef = await db.collection('foodDonations').add(newDonation);
@@ -83,14 +84,15 @@ export async function createPickupRequest(donationId: string, token: string) {
   return docRef.id;
 }
 
-export async function createMealRequest(request: Omit<MealRequest, 'id' | 'acceptorId' | 'requestDate'>, token: string) {
+export async function createMealRequest(request: { mobileNumber: string, meals: number }, token: string) {
     const auth = getAuth(app);
     const decodedToken = await auth.verifyIdToken(token);
     const acceptorId = decodedToken.uid;
 
     const newRequest: Omit<MealRequest, 'id'> = {
-        ...request,
         acceptorId,
+        meals: request.meals,
+        mobileNumber: request.mobileNumber,
         requestDate: new Date().toISOString(),
     };
 
