@@ -1,6 +1,6 @@
 'use client';
 
-import DashboardHeader from '@/components/dashboard/dashboard-header';
+import DashboardHeader from '@/app/(dashboard)/dashboard-header';
 import { useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';

@@ -27,6 +27,7 @@ import { doc } from 'firebase/firestore';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 
 function RegistrationForm({ role }: { role: UserRole }) {
   const auth = useAuth();
@@ -102,10 +103,6 @@ function RegistrationForm({ role }: { role: UserRole }) {
       });
     }
   };
-  
-  // Need to import createUserWithEmailAndPassword from firebase/auth to fix the error
-  const { createUserWithEmailAndPassword } = require('firebase/auth');
-
 
   return (
     <form onSubmit={handleRegister} className="space-y-4">
