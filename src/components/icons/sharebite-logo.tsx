@@ -17,29 +17,31 @@ function ShareBiteLogo(props: React.SVGProps<SVGSVGElement>) {
         {/* Background */}
         <rect width="100" height="100" fill="hsl(var(--primary))" />
 
-        {/* Hand */}
+        {/* Heart/Bowl Shape */}
         <path
-          d="M 20 90 C 10 90, 5 80, 15 70 C 25 60, 75 60, 85 70 C 95 80, 90 90, 80 90 L 20 90 Z"
-          fill="hsl(var(--secondary))"
-          transform="translate(0, 5)"
-        />
-
-        {/* Bowl */}
-        <path
-          d="M 25 70 C 25 55, 35 50, 50 50 C 65 50, 75 55, 75 70 Z"
+          d="M50 35 C 30 35, 20 55, 20 65 C 20 85, 50 95, 50 95 C 50 95, 80 85, 80 65 C 80 55, 70 35, 50 35 Z"
           fill="hsl(var(--background))"
+          stroke="hsl(var(--background))"
+          strokeWidth="4"
+          strokeLinejoin="round"
         />
 
-        {/* Food elements */}
-        <circle cx="50" cy="55" r="5" fill="#f59e0b" /> {/* Orange */}
-        <circle cx="40" cy="60" r="4" fill="#84cc16" /> {/* Green */}
-        <circle cx="60" cy="60" r="4" fill="#ef4444" /> {/* Red */}
-        <rect x="48" y="45" width="4" height="8" rx="2" fill="#a3e635" transform="rotate(15 50 50)" />
-
-        {/* Sharing/Wifi Symbol */}
-        <g stroke="hsl(var(--primary-foreground))" strokeWidth="3" fill="none" strokeLinecap="round">
-          <path d="M 40 35 A 15 15 0 0 1 60 35" />
-          <path d="M 32 42 A 25 25 0 0 1 68 42" />
+        {/* Sprout */}
+        <g transform="translate(0, -5)">
+          <path
+            d="M50 65 C 50 55, 55 50, 55 50"
+            stroke="hsl(var(--primary))"
+            strokeWidth="6"
+            fill="none"
+            strokeLinecap="round"
+          />
+          <path
+            d="M45 50 C 45 45, 50 40, 55 40"
+            stroke="hsl(var(--primary))"
+            strokeWidth="6"
+            fill="none"
+            strokeLinecap="round"
+          />
         </g>
       </g>
     </svg>
