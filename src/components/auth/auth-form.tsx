@@ -22,14 +22,13 @@ import {
 import Link from 'next/link';
 import { useState } from 'react';
 import { useAuth, useFirestore } from '@/firebase';
-import { setDoc, doc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUser } from '@/app/actions';
 
 function RegistrationForm({ role }: { role: UserRole }) {
   const auth = useAuth();
-  const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -76,7 +75,7 @@ function RegistrationForm({ role }: { role: UserRole }) {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!auth || !firestore) return;
+    if (!auth) return;
     setIsLoading(true);
 
     try {
@@ -88,16 +87,14 @@ function RegistrationForm({ role }: { role: UserRole }) {
       const user = userCredential.user;
 
       if (user) {
-        const userRef = doc(firestore, 'users', user.uid);
         const userData = {
-          id: user.uid,
           userType: role,
           name,
           email,
           phone,
           location,
         };
-        await setDoc(userRef, userData, { merge: true });
+        await createUser(userData, user.uid);
 
         toast({
           title: 'Registration Successful',

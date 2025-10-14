@@ -5,7 +5,7 @@ import {
   type AnalyzeDonorImageQualityOutput,
 } from '@/ai/flows/analyze-donor-image-quality';
 import { db } from '@/firebase/server';
-import { FoodDonation, MealRequest, PickupRequest } from '@/lib/types';
+import { FoodDonation, MealRequest, PickupRequest, UserProfile } from '@/lib/types';
 import { getAuth } from 'firebase-admin/auth';
 import { app } from '@/firebase/server';
 
@@ -96,4 +96,12 @@ export async function createMealRequest(request: Omit<MealRequest, 'id' | 'accep
 
     const docRef = await db.collection('mealRequests').add(newRequest);
     return docRef.id;
+}
+
+export async function createUser(userData: Omit<UserProfile, 'id'>, uid: string) {
+  const userRef = db.collection('users').doc(uid);
+  await userRef.set({
+    ...userData,
+    id: uid,
+  });
 }

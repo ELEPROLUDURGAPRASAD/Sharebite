@@ -83,15 +83,15 @@ export default function DonationForm() {
 
 
     const formData = new FormData(e.currentTarget);
-    const donationData = {
-        donorCategory: formData.get('donorCategory') as FoodDonation['donorCategory'],
+    const donationData: Omit<FoodDonation, 'id' | 'donorId' | 'status' | 'photoUrl'> = {
         foodType: formData.get('foodType') as string,
         quantity: Number(formData.get('quantity')),
         expiry: new Date(formData.get('expiry') as string).toISOString(),
         location: formData.get('location') as string,
-        contactName: formData.get('contact-name') as string,
-        contactMobile: formData.get('contact-mobile') as string,
         otherDetails: formData.get('other-details') as string,
+        donorCategory: formData.get('donorCategory') as FoodDonation['donorCategory'],
+        contactName: formData.get('contactName') as string,
+        contactMobile: formData.get('contactMobile') as string,
     }
 
     try {
@@ -103,7 +103,8 @@ export default function DonationForm() {
             description: "Your donation has been listed. An NGO will be notified.",
         });
         (e.target as HTMLFormElement).reset();
-        // Optionally reset image preview state here
+        setPhotoDataUri(null);
+        // We might need to manually reset the ImageAnalysis component state
     } catch (error: any) {
         console.error("Donation creation failed:", error);
         toast({
@@ -136,6 +137,7 @@ export default function DonationForm() {
               defaultValue="restaurant"
               name="donorCategory"
               className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
+              required
             >
               {donorTypes.map(({ id, label, icon: Icon }) => (
                 <div key={id}>
@@ -163,18 +165,15 @@ export default function DonationForm() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="quantity">Quantity</Label>
-              <Select name="quantity" required>
-                <SelectTrigger id="quantity">
-                  <SelectValue placeholder="Select quantity" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">Serves 1-10 people</SelectItem>
-                  <SelectItem value="30">Serves 11-30 people</SelectItem>
-                  <SelectItem value="50">Serves 31-50 people</SelectItem>
-                  <SelectItem value="51">Serves 51+ people</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor="quantity">Quantity (Servings)</Label>
+               <Input
+                id="quantity"
+                name="quantity"
+                type="number"
+                placeholder="e.g., 25"
+                required
+                min="1"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="expiry">Best Before / Expiry</Label>
@@ -186,6 +185,7 @@ export default function DonationForm() {
                   type="datetime-local"
                   className="pl-8"
                   required
+                  defaultValue={new Date(new Date().getTime() + 2 * 60 * 60 * 1000).toISOString().slice(0,16)}
                 />
               </div>
             </div>
@@ -208,7 +208,7 @@ export default function DonationForm() {
           <Collapsible>
             <CollapsibleTrigger asChild>
               <Button variant="outline" className="w-full justify-between" type="button">
-                Other Details (Optional)
+                Contact Person Details (Optional)
                 <ChevronDown className="h-4 w-4" />
               </Button>
             </CollapsibleTrigger>
@@ -216,23 +216,23 @@ export default function DonationForm() {
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="contact-name">Contact Name</Label>
-                  <Input id="contact-name" name="contact-name" placeholder="Rohan Kumar" />
+                  <Input id="contact-name" name="contactName" placeholder="Rohan Kumar" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="contact-mobile">Mobile Number</Label>
                   <Input
                     id="contact-mobile"
-                    name="contact-mobile"
+                    name="contactMobile"
                     type="tel"
                     placeholder="+91 98765 43210"
                   />
                 </div>
               </div>
-              <div className="space-y-2">
+               <div className="space-y-2">
                 <Label htmlFor="other-details">Additional Notes</Label>
                 <Textarea
                   id="other-details"
-                  name="other-details"
+                  name="otherDetails"
                   placeholder="Any special instructions for pickup..."
                 />
               </div>

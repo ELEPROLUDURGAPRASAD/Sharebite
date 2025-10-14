@@ -39,11 +39,11 @@ function DonationCard({ donation, donor }: DonationCardProps) {
       <CardHeader>
         <CardTitle className="font-headline flex items-center justify-between">
           <span>{donor?.name || 'A Kind Donor'}</span>
-          <Badge variant="secondary">{donation.donorCategory}</Badge>
+          <Badge variant="secondary">{donation.foodType}</Badge>
         </CardTitle>
         <CardDescription className="flex items-center pt-2">
           <Utensils className="h-4 w-4 mr-2 text-primary" />
-          Approx. {donation.quantity} meals of {donation.foodType}
+          Approx. {donation.quantity} meals
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-grow">
