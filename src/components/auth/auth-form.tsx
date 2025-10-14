@@ -151,6 +151,19 @@ function RegistrationForm({ role }: { role: UserRole }) {
 export default function AuthForm() {
   const [activeTab, setActiveTab] = useState<UserRole>('donor');
 
+  const getLoginLink = () => {
+    switch (activeTab) {
+      case 'donor':
+        return '/login/donor';
+      case 'ngo':
+        return '/login/ngo';
+      case 'acceptor':
+        return '/login/acceptor';
+      default:
+        return '/login/donor';
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Tabs
@@ -175,7 +188,7 @@ export default function AuthForm() {
       </Tabs>
       <p className="mt-4 text-center text-sm">
         Already have an account?{' '}
-        <Link href="/login" className="font-semibold text-primary hover:underline">
+        <Link href={getLoginLink()} className="font-semibold text-primary hover:underline">
           Login
         </Link>
       </p>
