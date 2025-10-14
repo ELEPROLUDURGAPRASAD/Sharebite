@@ -1,13 +1,26 @@
+
 'use client';
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, CheckCircle2, MapPin, Navigation, AlertTriangle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import {
+  AlertTriangle,
+  ArrowLeft,
+  CheckCircle2,
+  MapPin,
+  Navigation,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { GoogleMap, useJsApiLoader, DirectionsRenderer } from '@react-google-maps/api';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  DirectionsRenderer,
+  GoogleMap,
+  useJsApiLoader,
+} from '@react-google-maps/api';
+
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
 
 const containerStyle = {
   width: '100%',
@@ -20,23 +33,57 @@ const donorLocation = {
   lng: 79.5941,
 };
 
-// Replace with NGO's current location
-const ngoLocation = {
-    lat: 18.0000,
-    lng: 79.5833
-}
-
-
 export default function PickupPage({ params }: { params: { id: string } }) {
   const [status, setStatus] = useState<'collecting' | 'delivering'>(
     'collecting'
   );
   const router = useRouter();
-  const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
+  const [directions, setDirections] =
+    useState<google.maps.DirectionsResult | null>(null);
+  const { toast } = useToast();
+
+  const [ngoLocation, setNgoLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setNgoLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+          setLocationError(null);
+        },
+        (error) => {
+          console.error('Error getting user location:', error);
+          setLocationError(
+            'Could not get your location. Please enable location services and refresh the page.'
+          );
+          toast({
+            variant: 'destructive',
+            title: 'Location Access Denied',
+            description:
+              'Please enable location services in your browser to use the GPS tracker.',
+          });
+        }
+      );
+    } else {
+      setLocationError('Geolocation is not supported by this browser.');
+      toast({
+        variant: 'destructive',
+        title: 'Geolocation Not Supported',
+        description: 'Your browser does not support geolocation.',
+      });
+    }
+  }, [toast]);
 
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
   });
 
   const handlePickup = () => {
@@ -49,32 +96,38 @@ export default function PickupPage({ params }: { params: { id: string } }) {
 
   const handleNavigate = () => {
     if (donorLocation) {
-        const { lat, lng } = donorLocation;
-        const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
-        window.open(url, '_blank');
+      const { lat, lng } = donorLocation;
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+      window.open(url, '_blank');
     }
   };
 
   const calculateRoute = () => {
-    if (window.google && window.google.maps) {
-        const directionsService = new window.google.maps.DirectionsService();
-        directionsService.route(
+    if (window.google && window.google.maps && ngoLocation) {
+      const directionsService = new window.google.maps.DirectionsService();
+      directionsService.route(
         {
-            origin: ngoLocation,
-            destination: donorLocation,
-            travelMode: window.google.maps.TravelMode.DRIVING,
+          origin: ngoLocation,
+          destination: donorLocation,
+          travelMode: window.google.maps.TravelMode.DRIVING,
         },
         (result, status) => {
-            if (status === window.google.maps.DirectionsStatus.OK) {
-                setDirections(result);
-            } else {
+          if (status === window.google.maps.DirectionsStatus.OK) {
+            setDirections(result);
+          } else {
             console.error(`error fetching directions ${result}`);
-            }
+          }
         }
-        );
+      );
     }
   };
 
+  useEffect(() => {
+    if (isLoaded && ngoLocation) {
+      calculateRoute();
+    }
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded, ngoLocation]);
 
   if (status === 'delivering') {
     return (
@@ -83,87 +136,115 @@ export default function PickupPage({ params }: { params: { id: string } }) {
         style={{ minHeight: 'calc(100vh - 8rem)' }}
       >
         <div className="w-full max-w-sm">
-            <div className="flex flex-col items-center justify-center p-8 space-y-6">
-                <div className="p-6 bg-secondary rounded-full">
-                <CheckCircle2 className="h-20 w-20 text-primary" />
-                </div>
-                <h2 className="text-3xl font-bold font-headline">Food Delivered</h2>
-                <p className="text-muted-foreground text-lg">
-                Thank you for your contribution!
-                </p>
+          <div className="flex flex-col items-center justify-center p-8 space-y-6">
+            <div className="p-6 bg-secondary rounded-full">
+              <CheckCircle2 className="h-20 w-20 text-primary" />
             </div>
-            <Button size="lg" className="w-full mt-8" onClick={handleDone}>
-                Done
-            </Button>
+            <h2 className="text-3xl font-bold font-headline">Food Delivered</h2>
+            <p className="text-muted-foreground text-lg">
+              Thank you for your contribution!
+            </p>
+          </div>
+          <Button size="lg" className="w-full mt-8" onClick={handleDone}>
+            Done
+          </Button>
         </div>
       </div>
     );
   }
 
+  const center = ngoLocation || donorLocation;
+
   return (
     <div className="container mx-auto flex flex-col items-center p-0 md:p-4 h-[calc(100vh-8rem)] bg-gray-50">
-        <div className="w-full max-w-md h-full flex flex-col bg-background shadow-lg">
-            <div className="p-4 border-b">
-                 <Link
-                    href="/ngo"
-                    className="flex items-center text-sm text-muted-foreground hover:text-primary mb-4"
-                >
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back to Requests
-                </Link>
-                <h1 className="text-2xl font-headline font-bold text-center">
-                    Collection
-                </h1>
-            </div>
-       
-            <div className="flex-grow relative">
-                {loadError && (
-                    <div className="flex items-center justify-center h-full p-4">
-                        <Alert variant="destructive">
-                            <AlertTriangle className="h-4 w-4" />
-                            <AlertTitle>Map Error</AlertTitle>
-                            <AlertDescription>
-                                Google Maps could not be loaded. Please ensure your API key is configured correctly in the Google Cloud Console.
-                            </AlertDescription>
-                        </Alert>
-                    </div>
-                )}
-                {!loadError && isLoaded ? (
-                    <GoogleMap
-                    mapContainerStyle={containerStyle}
-                    center={donorLocation}
-                    zoom={13}
-                    options={{
-                        disableDefaultUI: true,
-                        zoomControl: true,
-                    }}
-                    onLoad={calculateRoute}
-                    >
-                        {directions && <DirectionsRenderer directions={directions} />}
-                    </GoogleMap>
-                ) : (
-                   !loadError && <div className="flex items-center justify-center h-full">Loading Map...</div>
-                )}
-            </div>
+      <div className="w-full max-w-md h-full flex flex-col bg-background shadow-lg">
+        <div className="p-4 border-b">
+          <Link
+            href="/ngo"
+            className="flex items-center text-sm text-muted-foreground hover:text-primary mb-4"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Requests
+          </Link>
+          <h1 className="text-2xl font-headline font-bold text-center">
+            Collection
+          </h1>
+        </div>
 
-            <div className="p-4 border-t bg-white">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="text-lg flex items-center"><MapPin className="h-5 w-5 mr-2 text-primary"/> Pickup Location</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p>Gourmet Grill</p>
-                        <p className="text-muted-foreground">Warangal, Telangana, India</p>
-                        <Button variant="outline" className="w-full mt-4" onClick={handleNavigate}>
-                            <Navigation className="mr-2 h-4 w-4"/>
-                            Navigate
-                        </Button>
-                    </CardContent>
-                </Card>
-                <Button size="lg" className="w-full mt-4" onClick={handlePickup}>
-                    Picked up
-                </Button>
+        <div className="flex-grow relative">
+          {loadError && (
+            <div className="flex items-center justify-center h-full p-4">
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Map Error</AlertTitle>
+                <AlertDescription>
+                  Google Maps could not be loaded. This could be due to an
+                  invalid API key or network issues. Please try opening in
+                  Google Maps directly.
+                </AlertDescription>
+              </Alert>
             </div>
+          )}
+          {locationError && !loadError && (
+            <div className="flex items-center justify-center h-full p-4">
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Location Error</AlertTitle>
+                <AlertDescription>{locationError}</AlertDescription>
+              </Alert>
+            </div>
+          )}
+          {!loadError && !locationError && isLoaded ? (
+            <GoogleMap
+              mapContainerStyle={containerStyle}
+              center={center}
+              zoom={13}
+              options={{
+                disableDefaultUI: true,
+                zoomControl: true,
+              }}
+            >
+              {directions && <DirectionsRenderer directions={directions} />}
+            </GoogleMap>
+          ) : (
+            !loadError &&
+            !locationError && (
+              <div className="flex items-center justify-center h-full">
+                Loading Map...
+              </div>
+            )
+          )}
+        </div>
+
+        <div className="p-4 border-t bg-white">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center">
+                <MapPin className="h-5 w-5 mr-2 text-primary" /> Pickup Location
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>Gourmet Grill</p>
+              <p className="text-muted-foreground">Warangal, Telangana, India</p>
+              <Button
+                variant="outline"
+                className="w-full mt-4"
+                onClick={handleNavigate}
+              >
+                <Navigation className="mr-2 h-4 w-4" />
+                Navigate
+              </Button>
+            </CardContent>
+          </Card>
+          <Button
+            size="lg"
+            className="w-full mt-4"
+            onClick={handlePickup}
+            disabled={!ngoLocation}
+          >
+            Picked up
+          </Button>
+        </div>
       </div>
     </div>
   );
