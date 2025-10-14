@@ -1,11 +1,6 @@
-import {
-  Bell,
-  Home,
-  HandHeart,
-  LifeBuoy,
-  LogOut,
-  User,
-} from 'lucide-react';
+
+'use client';
+import { Bell, Home, LifeBuoy, LogOut, User } from 'lucide-react';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -23,11 +18,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Badge } from '../ui/badge';
+import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
+import { ShareBiteLogo } from '../icons/sharebite-logo';
 
 export default function DashboardHeader() {
   const auth = useAuth();
@@ -47,8 +43,7 @@ export default function DashboardHeader() {
         href="/donor"
         className="flex items-center gap-2 text-lg font-semibold md:text-base"
       >
-        <HandHeart className="h-8 w-8 text-primary" />
-        <span className="font-headline text-2xl text-primary">ShareBite</span>
+        <ShareBiteLogo className="w-auto h-12 -mb-2" />
       </Link>
       <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
         <Link
@@ -171,3 +166,5 @@ export default function DashboardHeader() {
     </header>
   );
 }
+
+    

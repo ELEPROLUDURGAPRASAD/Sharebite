@@ -1,3 +1,4 @@
+
 'use client';
 import { Bell, Home, LifeBuoy, LogOut, User } from 'lucide-react';
 import Link from 'next/link';
@@ -42,7 +43,7 @@ export default function DashboardHeader() {
         href="/donor"
         className="flex items-center gap-2 text-lg font-semibold md:text-base"
       >
-        <ShareBiteLogo className="w-auto h-10" />
+        <ShareBiteLogo className="w-auto h-12 -mb-2" />
       </Link>
       <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
         <Link
@@ -165,3 +166,5 @@ export default function DashboardHeader() {
     </header>
   );
 }
+
+    
