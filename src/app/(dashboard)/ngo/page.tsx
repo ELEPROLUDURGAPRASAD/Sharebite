@@ -85,26 +85,33 @@ export default function NgoDashboard() {
   useEffect(() => {
     if (donations && firestore) {
       const fetchDonors = async () => {
-        const donorIds = [
-          ...new Set(donations.map((d) => d.donorId).filter((id) => !donors[id])),
-        ];
-        if (donorIds.length > 0) {
-          const newDonors: Record<string, UserProfile> = {};
-          await Promise.all(
-            donorIds.map(async (id) => {
-              const donorRef = doc(firestore, 'users', id);
-              const donorSnap = await getDoc(donorRef);
-              if (donorSnap.exists()) {
-                newDonors[id] = donorSnap.data() as UserProfile;
-              }
-            })
-          );
-          setDonors((prev) => ({ ...prev, ...newDonors }));
+        const donorIdsToFetch = donations
+          .map((d) => d.donorId)
+          .filter((id) => !donors[id]); // Only fetch donors not already in state
+        
+        if (donorIdsToFetch.length === 0) return;
+
+        const uniqueDonorIds = [...new Set(donorIdsToFetch)];
+        
+        try {
+            const newDonors: Record<string, UserProfile> = {};
+            await Promise.all(
+                uniqueDonorIds.map(async (id) => {
+                    const donorRef = doc(firestore, 'users', id);
+                    const donorSnap = await getDoc(donorRef);
+                    if (donorSnap.exists()) {
+                        newDonors[id] = donorSnap.data() as UserProfile;
+                    }
+                })
+            );
+            setDonors((prev) => ({ ...prev, ...newDonors }));
+        } catch (err) {
+            console.error("Error fetching donor documents:", err);
         }
       };
       fetchDonors();
     }
-  }, [donations, firestore, donors]);
+  }, [donations, firestore]);
 
   return (
     <div className="container mx-auto">
