@@ -88,7 +88,7 @@ export default function DonationForm() {
         quantity: Number(formData.get('quantity')),
         expiry: new Date(formData.get('expiry') as string).toISOString(),
         location: formData.get('location') as string,
-        otherDetails: formData.get('other-details') as string,
+        otherDetails: formData.get('otherDetails') as string,
         donorCategory: formData.get('donorCategory') as FoodDonation['donorCategory'],
         contactName: formData.get('contactName') as string,
         contactMobile: formData.get('contactMobile') as string,
