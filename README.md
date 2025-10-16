@@ -25,7 +25,7 @@ System Workflow:
 4.Status updates are tracked and displayed on dashboards.
 Team :
 Eelaprolu.Durga prasad(Team leader) 
-Buddy.Sahithi Deesari.
+Buddy.Sahithi
 Chinthoju.Jyoshnavi
 Future Scope :
 Launch mobile app version for Android & iOS.
